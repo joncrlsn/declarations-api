@@ -32,7 +32,6 @@ type Declaration struct {
 }
 
 func main() {
-
 	var portStr = ":" + strconv.Itoa(port)
 
 	fmt.Println(portStr)
