@@ -40,6 +40,7 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 
 	http.HandleFunc("/api/declaration/random", randomDeclarationFunc)
+	http.HandleFunc("/health", healthFunc)
 
 	l, err := net.Listen("tcp4", portStr)
 	if err != nil {
@@ -67,6 +68,13 @@ func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(byteArray)
+}
+
+func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+  byteArray := []byte(`{"status": "OK"}`)
 	w.WriteHeader(http.StatusOK)
 	w.Write(byteArray)
 }
