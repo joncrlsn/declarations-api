@@ -25,7 +25,7 @@ spec:
           image: localhost:32000/declarations-api:latest
           env:
             - name: DECLARATIONS_FILE
-              value: /app/static/declarations
+              value: /app/declarations/declarations
             - name: STATIC_DIR
               value: /app/static
           ports:
@@ -37,7 +37,7 @@ spec:
               port: http
             initialDelaySeconds: 10
             timeoutSeconds: 10
-            periodSeconds: 10
+            periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /health
@@ -47,4 +47,4 @@ spec:
             periodSeconds: 10
           volumeMounts:
             - name: declarations-data
-              mountPath: /declarations
+              mountPath: /app/declarations
