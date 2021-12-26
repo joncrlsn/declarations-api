@@ -21,9 +21,10 @@ import (
 )
 
 var (
-	action  string = "help"
-	port    int    = 8080
-	version string = "0.1.0"
+	port             int    = 8080
+	version          string = "0.1.0"
+	declarationsFile string = ""
+	staticDir        string = ""
 )
 
 type Declaration struct {
@@ -31,14 +32,22 @@ type Declaration struct {
 	Reference   string `json:"reference"`
 }
 
+func init() {
+	declarationsFile = os.Getenv("DECLARATIONS_FILE")
+  if len(declarationsFile) == 0 {
+    staticDir = "./static/declarations"
+  }
+	staticDir = os.Getenv("STATIC_PATH")
+  if len(staticDir) == 0 {
+    staticDir = "./static"
+  }
+}
+
 func main() {
+  fmt.Println("Hi Mom")
 	var portStr = ":" + strconv.Itoa(port)
 
-	fmt.Println(portStr)
-
-	// Handle HTTP files in the static directory
-	http.Handle("/", http.FileServer(http.Dir("./static")))
-
+	http.Handle("/", http.FileServer(http.Dir(staticDir)))
 	http.HandleFunc("/api/declaration/random", randomDeclarationFunc)
 	http.HandleFunc("/health", healthFunc)
 
@@ -47,15 +56,17 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	fmt.Printf("Listening on port %s\n", portStr)
+	fmt.Printf("Running as user %d\n", os.Getuid())
 	log.Fatal(http.Serve(l, nil))
 	fmt.Println("Done")
 }
 
 func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	decl, ref, err := RandomDeclaration("./static/declarations")
+	decl, ref, err := RandomDeclaration(declarationsFile)
 	if err != nil {
-		fmt.Println("Error in RandomDeclaration", err)
+		fmt.Println("Error in randomDeclarationFunc", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -72,9 +83,9 @@ func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
 	w.Write(byteArray)
 }
 
-func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
+func healthFunc(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-  byteArray := []byte(`{"status": "OK"}`)
+	byteArray := []byte(`{"status": "OK"}`)
 	w.WriteHeader(http.StatusOK)
 	w.Write(byteArray)
 }

@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 Jon Carlson <joncrlsn@gmail.com>
+Copyright © 2021 Jon Carlson <joncrlsn@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,8 @@ package main
 
 //
 // What is a declaration?
-// It is a bible verse that you have reworded to make it more personal, then
-// added to your declarations file, one declaration per line.
+// It is a bible verse that someone has reworded to make it more personal, then
+// added to a declarations file, one declaration per line.
 //
 // Example:
 // I am born of God, the evil one cannot touch me.  - 1 John 5:18

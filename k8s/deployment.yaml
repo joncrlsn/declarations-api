@@ -12,12 +12,22 @@ spec:
       app: declarations-api
   template:
     metadata:
+      namespace: apps
       labels:
-        app: declaration-api
+        app: declarations-api
     spec:
+      volumes:
+      - name: declarations-data
+        persistentVolumeClaim:
+          claimName: declarations-pvc
       containers:
         - name: declarations-api
           image: localhost:32000/declarations-api:latest
+          env:
+            - name: DECLARATIONS_FILE
+              value: /app/static/declarations
+            - name: STATIC_DIR
+              value: /app/static
           ports:
             - name: http
               containerPort: 8080
@@ -36,5 +46,5 @@ spec:
             timeoutSeconds: 10
             periodSeconds: 10
           volumeMounts:
-          - mountPath: /declarations
-            name: declarations-pvc
+            - name: declarations-data
+              mountPath: /declarations
