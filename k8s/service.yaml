@@ -3,7 +3,10 @@ kind: Service
 metadata:
   name: declarations-api
   namespace: apps
+  labels:
+    name: nginx-ingress-microk8s
 spec:
+  type: ClusterIP
   ports:
   - name: http
     port: 8080

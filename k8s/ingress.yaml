@@ -1,0 +1,34 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: declarations-api
+  namespace: apps
+  annotations:
+    kubernetes.io/ingress.class: public
+spec:
+  #tls:
+  #  - secretName: myinginx-lsd-com
+  #    hosts:
+  #      - mynginx.lsd.com
+  rules:
+    - host: declare.carlson.fam
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: declarations-api
+                port:
+                  number: 8080
+    - host: declarations-api.carlson.fam
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: declarations-api
+                port:
+                  number: 8080
