@@ -5,7 +5,7 @@ metadata:
   namespace: apps
   labels:
     app: declarations-api
-    microk8s-application: nginx-ingress-microk8s
+    #microk8s-application: nginx-ingress-microk8s
 spec:
   replicas: 1
   selector:

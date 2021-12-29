@@ -4,12 +4,12 @@ metadata:
   name: declarations-api
   namespace: apps
   labels:
-    name: nginx-ingress-microk8s
+    app: declarations-api
 spec:
   type: ClusterIP
+  selector:
+    app: declarations-api
   ports:
   - name: http
     port: 8080
     targetPort: 8080
-  selector:
-    app: declarations-api
