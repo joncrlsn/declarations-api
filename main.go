@@ -43,7 +43,7 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir(staticDir)))
 	http.HandleFunc("/api/declarations/random", randomDeclarationFunc)
-	http.HandleFunc("/api/declarations", declarationsFunc)
+	http.HandleFunc("/api/declarations/search/", declarationsSearchFunc)
 	http.HandleFunc("/health", healthFunc)
 
 	l, err := net.Listen("tcp4", portStr)
@@ -75,7 +75,8 @@ func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
 	w.Write(byteArray)
 }
 
-func declarationsFunc(w http.ResponseWriter, req *http.Request) {
+func declarationsSearchFunc(w http.ResponseWriter, req *http.Request) {
+	fmt.Printf("RequestURI: %s\n", req.RequestURI)
 	w.Header().Set("Content-Type", "application/json")
 	declarationChannel, err := GrepDeclarations(declarationsFile, "abOve")
 	if err != nil {
