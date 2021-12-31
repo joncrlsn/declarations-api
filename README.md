@@ -1,22 +1,23 @@
 # declarations-api
 
-Random declarations about myself from the Bible or those whose mind is steeped in the Bible.  Currently stored in a text file.
+Random declarations about myself from the Bible or someone whose mind is steeped in the Bible.  Currently stored in a text file.
 
 ```
 # Build the image
-docker build -t declarations-api:latest -t localhost:32000/declarations-api:latest .
+docker build -t declarations-api:latest .
 
 # Run the image in docker:
-docker run -it --rm --name declare -p 8080:8080 declarations-api:latest
+docker run -it --rm --name declarations-api -p 8080:8080 declarations-api:latest
 
 # Test it out:
 curl http://localhost:8080/api/declaration/random
 
-# Push it up to the k8s registry
+# Push it up to the microk8s registry
+docker tag declarations-api:latest localhost:32000/declarations-api:latest .
 docker push localhost:32000/declarations-api:latest
 
 #############################################################
-# Note that my kubectl is aliased to 'sudo microk8s kubectl'
+# Note that my kubectl is aliased to 'microk8s kubectl'
 #############################################################
 
 # Tell it to pick up the new one

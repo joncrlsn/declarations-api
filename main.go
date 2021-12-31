@@ -34,17 +34,17 @@ type Declaration struct {
 
 func init() {
 	declarationsFile = os.Getenv("DECLARATIONS_FILE")
-  if len(declarationsFile) == 0 {
-    staticDir = "./static/declarations"
-  }
+	if len(declarationsFile) == 0 {
+		staticDir = "./static/declarations"
+	}
 	staticDir = os.Getenv("STATIC_PATH")
-  if len(staticDir) == 0 {
-    staticDir = "./static"
-  }
+	if len(staticDir) == 0 {
+		staticDir = "./static"
+	}
 }
 
 func main() {
-  fmt.Println("Hi Mom")
+	fmt.Println("Hi Mom")
 	var portStr = ":" + strconv.Itoa(port)
 
 	http.Handle("/", http.FileServer(http.Dir(staticDir)))
