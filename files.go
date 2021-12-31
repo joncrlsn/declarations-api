@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -58,6 +59,30 @@ func grep(fileName string, regex *regexp.Regexp) (<-chan string, error) {
 		for scanner.Scan() {
 			if regex.Match(scanner.Bytes()) {
 				c <- scanner.Text()
+			}
+		}
+		close(c)
+	}()
+
+	return c, nil
+}
+
+// grepSimple reads a file line by line and adds to the channel only lines
+// that contain the given string.
+func grepSimple(fileName string, substring string) (<-chan string, error) {
+	c := make(chan string, 10)
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			text := scanner.Text()
+			if len(substring) == 0 || strings.Contains(strings.ToLower(text), strings.ToLower(substring)) {
+				c <- text
 			}
 		}
 		close(c)

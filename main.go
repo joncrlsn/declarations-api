@@ -27,15 +27,10 @@ var (
 	staticDir        string = ""
 )
 
-type Declaration struct {
-	Declaration string `json:"declaration"`
-	Reference   string `json:"reference"`
-}
-
 func init() {
 	declarationsFile = os.Getenv("DECLARATIONS_FILE")
 	if len(declarationsFile) == 0 {
-		staticDir = "./static/declarations"
+		declarationsFile = "./static/declarations"
 	}
 	staticDir = os.Getenv("STATIC_PATH")
 	if len(staticDir) == 0 {
@@ -44,11 +39,11 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Hi Mom")
 	var portStr = ":" + strconv.Itoa(port)
 
 	http.Handle("/", http.FileServer(http.Dir(staticDir)))
-	http.HandleFunc("/api/declaration/random", randomDeclarationFunc)
+	http.HandleFunc("/api/declarations/random", randomDeclarationFunc)
+	http.HandleFunc("/api/declarations", declarationsFunc)
 	http.HandleFunc("/health", healthFunc)
 
 	l, err := net.Listen("tcp4", portStr)
@@ -64,16 +59,13 @@ func main() {
 
 func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	decl, ref, err := RandomDeclaration(declarationsFile)
+	declaration, err := RandomDeclaration(declarationsFile)
 	if err != nil {
 		fmt.Println("Error in randomDeclarationFunc", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	declaration := &Declaration{
-		Declaration: *decl,
-		Reference:   *ref,
-	}
+
 	byteArray, err := json.Marshal(declaration)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -81,6 +73,36 @@ func randomDeclarationFunc(w http.ResponseWriter, req *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(byteArray)
+}
+
+func declarationsFunc(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	declarationChannel, err := GrepDeclarations(declarationsFile, "abOve")
+	if err != nil {
+		fmt.Println("Error in declarationsFunc", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("["))
+
+	firstDeclaration := true
+	for decl := range declarationChannel {
+		if !firstDeclaration {
+			w.Write([]byte(","))
+		} else {
+			firstDeclaration = false
+		}
+		byteArray, err := json.Marshal(decl)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Write(byteArray)
+	}
+
+	w.Write([]byte("]"))
 }
 
 func healthFunc(w http.ResponseWriter, req *http.Request) {

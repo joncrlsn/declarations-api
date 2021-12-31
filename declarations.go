@@ -35,9 +35,10 @@ import (
 	"regexp"
 )
 
-const (
-	declarationsFilename = "/keybase/private/joncrlsn/declarations"
-)
+type Declaration struct {
+	Declaration *string `json:"declaration"`
+	Reference   *string `json:"reference"`
+}
 
 // referenceRegex expects the declaration to end with a period followed
 // by one or more spaces and then a dash.
@@ -45,20 +46,53 @@ const (
 var referenceRegex = regexp.MustCompile(`\.\s+-\s*`)
 
 // RandomDeclaration assumes a file with a declaration per line.
-func RandomDeclaration(fileName string) (declaration *string, reference *string, err error) {
+func RandomDeclaration(fileName string) (Declaration, error) {
 
 	line, err := grepRandom(fileName)
 	if err != nil {
 		fmt.Println("Error reading declarations file", err)
-		return
+		return Declaration{}, err
 	}
 
-	lines := referenceRegex.Split(line, 2)
-	if len(lines) > 0 {
-		declaration = &lines[0]
+	var declaration Declaration
+	parts := referenceRegex.Split(line, 2)
+	if len(parts) > 0 {
+		declaration.Declaration = &parts[0]
 	}
-	if len(lines) > 1 {
-		reference = &lines[1]
+	if len(parts) > 1 {
+		declaration.Reference = &parts[1]
 	}
-	return
+
+	return declaration, nil
+}
+
+// GrepDeclarations returns declarations that contain the given substring regardless of case
+func GrepDeclarations(fileName, substring string) (chan Declaration, error) {
+
+	c, err := grepSimple(fileName, substring)
+	if err != nil {
+		fmt.Println("Error reading declarations file", err)
+		return nil, err
+	}
+
+	var outputChannel = make(chan Declaration)
+
+	go func() {
+		// Read from the channel
+		for line := range c {
+			parts := referenceRegex.Split(line, 2)
+			var text, reference string
+			if len(parts) > 0 {
+				text = parts[0]
+			}
+			if len(parts) > 1 {
+				reference = parts[1]
+			}
+			declaration := Declaration{&text, &reference}
+			outputChannel <- declaration
+		}
+		close(outputChannel)
+	}()
+
+	return outputChannel, nil
 }
